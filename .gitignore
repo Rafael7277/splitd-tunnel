@@ -1,0 +1,7 @@
+# Local server details and runtime secrets
+server.txt
+.env
+.env.*
+*.log
+*.pem
+*.key

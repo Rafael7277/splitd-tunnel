@@ -1,0 +1,17 @@
+[Unit]
+Description=splitd v3 tunnel (Iran side)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+StandardOutput=null
+StandardError=null
+EnvironmentFile=/etc/splitd-v3/iran.conf
+ExecStart=/usr/local/bin/splitd-v3 -mode iran -local ${LOCAL_ADDR} -dl 0.0.0.0:${DL_PORT} -ul 0.0.0.0:${UL_PORT} -flow-stale ${FLOW_STALE_SEC}
+Restart=always
+RestartSec=2
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target
