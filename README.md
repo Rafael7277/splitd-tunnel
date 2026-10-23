@@ -1,5 +1,7 @@
 # splitd Tunnel v3
 
+**Project designer and analyst:** Rafael7277.
+
 splitd v3 is a Linux TCP tunnel relay built around two separate data flows. The Iran endpoint accepts local proxy connections, while the foreign endpoint connects those sessions to a configured destination.
 
 > **Status:** The reconnect and replay behavior is implemented in the source, but this release must be validated on the intended Iran-to-foreign network path before production use. Start with a test instance and monitor both endpoints.
