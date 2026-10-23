@@ -1,28 +1,27 @@
-# نصب Splitd V3 روی سرور ایران
+# Splitd V3 Iran-side setup
 
-V3 دو flow با جهت payload ثابت نگه می‌دارد: خارج روی DL می‌نویسد و ایران روی UL می‌نویسد. برای جلوگیری از تشخیص مبهم نقش اتصال، این نسخه به دو پورت مجزا نیاز دارد.
+## Install through the interactive panel
 
-## مراحل
-
-1. فایل `splitd.conf` را بررسی کن. پیش‌فرض‌های V3 برای نصب کنار V2 عبارت‌اند از `LOCAL_ADDR=127.0.0.1:93`، `DL_PORT=12797` و `UL_PORT=12798`.
-2. پوشهٔ `v3/` را روی سرور بگذار و از همین پوشه نصب را اجرا کن:
+Copy the repository to the Iran server, then run the installer as root:
 
 ```bash
-cd v3/iran
+cd /path/to/splitd-tunnel/iran
 bash install.sh
 ```
 
-3. اجازهٔ ورود TCP پورت‌های DL و UL را از IP سرور خارج در فایروال بده.
-4. outbound پنل را برای آزمایش به `127.0.0.1:93` تنظیم کن.
-5. روی خارج، config همسان را تنظیم و installer آن سمت را اجرا کن.
+The panel asks for the local panel address, download and upload ports, stale-flow threshold, and logging preference. Press Enter to accept the suggested values. The defaults are `127.0.0.1:93`, TCP ports `12797` and `12798`, and a 15-second stale-flow threshold. The panel installs the binary and systemd service, enables the service, and starts it. You do not need to edit `splitd.conf` for the normal setup.
 
-Installer باینری `/usr/local/bin/splitd-v3` و سرویس `splitd-v3-iran` را نصب می‌کند. فایل عملیاتی بعد از نصب در `/etc/splitd-v3/iran.conf` است. پس از تغییر config، `systemctl restart splitd-v3-iran` را اجرا کن؛ این restart فقط برای اعمال تغییر config یا ارتقای نسخه است، نه بازیابی flow.
+After both endpoints are configured, point the local proxy client's outbound to `127.0.0.1:93` or the local address you selected. Allow the foreign server to reach both flow ports through the Iran firewall.
 
-`FLOW_STALE_SEC` آستانهٔ گیرکردن تأیید فریم‌هاست و باید با config خارج برابر باشد. V3 تنها در صورت وجود دادهٔ تأییدنشدهٔ قدیمی، هر دو اتصال یک‌طرفه را تعویض می‌کند و نشست‌ها را با توالی/تأیید ادامه می‌دهد.
+## Manage the service
 
-وضعیت و گزارش:
+Run these commands from this directory as root:
 
 ```bash
-systemctl status splitd-v3-iran
-journalctl -u splitd-v3-iran -f
+bash install.sh status
+bash install.sh start
+bash install.sh stop
+bash install.sh restart
 ```
+
+`FLOW_STALE_SEC` is a threshold for replacing a TCP flow only after its oldest application frame remains unacknowledged. It is not a periodic process restart. The Iran and foreign endpoints must use the same value.

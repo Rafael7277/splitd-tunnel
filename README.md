@@ -1,7 +1,5 @@
 # splitd Tunnel v3
 
-**Project designer and analyst:** Rafael7277.
-
 splitd v3 is a Linux TCP tunnel relay built around two separate data flows. The Iran endpoint accepts local proxy connections, while the foreign endpoint connects those sessions to a configured destination.
 
 > **Status:** The reconnect and replay behavior is implemented in the source, but this release must be validated on the intended Iran-to-foreign network path before production use. Start with a test instance and monitor both endpoints.
@@ -38,43 +36,40 @@ V3 is not wire-compatible with V2. Install V3 on both endpoints and use separate
 
 The included binaries target Linux `amd64`. Build a binary for another server architecture before installing there.
 
-## Install
+## Install and manage with the interactive panel
 
-Copy the `v3` directory to both servers, then configure and install each side. The sample foreign configuration contains a placeholder host; replace it with the Iran server's address before installation.
+Copy the repository to both Linux servers. Run the installer as root from the directory for that server. The interactive panel asks for the role-specific settings, writes the operational configuration under `/etc/splitd-v3/`, installs the binary, creates and enables the systemd service, and starts it. Standard setup does not require manually editing `splitd.conf`.
 
 ### Iran server
 
 ```bash
-cd /path/to/v3/iran
-vi splitd.conf
+cd /path/to/splitd-tunnel/iran
 bash install.sh
 ```
 
-The sample Iran local listener is `127.0.0.1:93`. Point the local proxy client's outbound at that address when testing. The sample flow ports are TCP `12797` and `12798`.
+Accept the suggested values or enter your own. The Iran panel address defaults to `127.0.0.1:93`; the download and upload ports default to `12797` and `12798`. After setup, point the local proxy client's outbound at the panel address.
 
 ### Foreign server
 
 ```bash
-cd /path/to/v3/foreign
-vi splitd.conf
+cd /path/to/splitd-tunnel/foreign
 bash install.sh
 ```
 
-Set `IRAN_HOST` to the Iran server's reachable address. During the interactive setup, enter the foreign-side `TARGET` address and port for the local service that should receive tunneled sessions. Use the same flow ports and stale threshold as on Iran.
+Enter the real Iran server address and the local `TARGET` service that should receive tunneled sessions. Use the same download port, upload port, and `FLOW_STALE_SEC` on both servers. The log prompt defaults to off.
 
-### Interactive manager
+### Panel choices
 
-Running `bash install.sh` without arguments opens the instance menu:
+- On a fresh server, press Enter or type `n` to create the first instance, then answer the prompts.
+- In the instance list, choose a number to reconfigure that instance.
+- Type `n` to add a parallel instance with separate ports and a separate service.
+- Type `d` to delete an instance after confirmation.
 
-- `n`: add a parallel instance with its own ports and service.
-- A listed instance number: reconfigure that instance.
-- `d`: delete an instance after confirmation.
-
-When Go is installed locally, the manager builds from source. If that build is unavailable, it uses the bundled Linux amd64 binary.
+With Go installed, the manager builds from source. Otherwise, it installs the bundled Linux amd64 binary. The panel enables and starts the selected service when setup completes.
 
 ## Service commands
 
-Run commands from the corresponding role directory (`v3/iran` or `v3/foreign`):
+Run commands from the corresponding role directory (`iran` or `foreign`) as root:
 
 ```bash
 bash install.sh list
@@ -126,7 +121,7 @@ Enable application logs in the manager if you need flow-level messages. A stale-
 
 ## Build from source
 
-From the `v3` directory, build the Linux amd64 binary:
+From the repository root, build the Linux amd64 binary:
 
 ```bash
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o splitd-linux-amd64 .
